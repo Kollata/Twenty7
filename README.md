@@ -1,7 +1,9 @@
-# 订阅转换用的分流规则，防DNS泄露
-（参考自ACL4SSR大佬）
+# 订阅转换用的分流规则，防DNS泄露（参考自ACL4SSR大佬）
+
 
 用于clash的分流规则
+
+ [English Documentation](https://github.com/Kollata/Twenty7/blob/main/README-EN.md)
 
 本项目提供的分流规则可用于以下工具：
 
