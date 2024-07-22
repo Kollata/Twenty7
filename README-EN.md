@@ -96,3 +96,10 @@ By following these steps, you can easily convert subscription links into the req
 custom_proxy_group=🇺🇲 US Nodes`url-test`([^A-Z]美|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|[^A-Z]US|United States)`http://www.gstatic.com/generate_204`300,,150
 custom_proxy_group=🇦🇺 Australian Nodes`url-test`([^A-Z]AUS|Australia|Sydney|Melbourne|Perth|Brisbane|Adelaide|Canberra|AU|Australia)`http://www.gstatic.com/generate_204`300,,50
 custom_proxy_group=🇷🇺 Russian Nodes`url-test`([^A-Z]RUS|Russia|Moscow|St.Petersburg|RU|Russia)`http://www.gstatic.com/generate_204`300,,50
+```
+
+## License
+
+[![CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
+
+This project is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
