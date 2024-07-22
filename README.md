@@ -23,29 +23,10 @@
 
 ## 其他规则转换 clash Quantumul Surge Surfboard Trojan
 
-- 前后端都是开源的，自己随便搭建。自建的话，只自建后端已经足够
+ 前后端都是开源的，自己随便搭建。自建的话，只自建后端已经足够
 - **前端**：[sub-web](https://github.com/CareyWang/sub-web)
 - **后端**：[subconverter](https://github.com/tindy2013/subconverter/blob/master/README-cn.md)
 
-支持类型
-类型	作为源类型	作为目标类型	参数
-Clash	✓	✓	clash
-ClashR	✓	✓	clashr
-Quantumult (完整配置)	✓	✓	quan
-Quantumult X (完整配置)	✓	✓	quanx
-Loon	✓	✓	loon
-Mellow	✓	✓	mellow
-SS (SIP002)	✓	✓	ss
-SS (软件订阅)	✓	✓	sssub
-SSD	✓	✓	ssd
-SSR	✓	✓	ssr
-Surfboard	✓	✓	surfboard
-Surge 2	✓	✓	surge&ver=2
-Surge 3	✓	✓	surge&ver=3
-Surge 4	✓	✓	surge&ver=4
-Trojan	✓	✓	trojan
-V2Ray	✓	✓	v2ray
-类 TG 代理的 HTTP/Socks 链接	✓	×	仅支持 &url= 调用
 
 
 
