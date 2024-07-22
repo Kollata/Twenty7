@@ -21,6 +21,34 @@
 3. **配置你的订阅链接**。
 4. **启动Clash或OpenClash**。
 
+## 其他规则转换 clash Quantumul Surge Surfboard Trojan
+
+- 前后端都是开源的，自己随便搭建。自建的话，只自建后端已经足够
+- **前端**：[sub-web](https://github.com/CareyWang/sub-web)
+- **后端**：[subconverter](https://github.com/tindy2013/subconverter/blob/master/README-cn.md)
+
+支持类型
+类型	作为源类型	作为目标类型	参数
+Clash	✓	✓	clash
+ClashR	✓	✓	clashr
+Quantumult (完整配置)	✓	✓	quan
+Quantumult X (完整配置)	✓	✓	quanx
+Loon	✓	✓	loon
+Mellow	✓	✓	mellow
+SS (SIP002)	✓	✓	ss
+SS (软件订阅)	✓	✓	sssub
+SSD	✓	✓	ssd
+SSR	✓	✓	ssr
+Surfboard	✓	✓	surfboard
+Surge 2	✓	✓	surge&ver=2
+Surge 3	✓	✓	surge&ver=3
+Surge 4	✓	✓	surge&ver=4
+Trojan	✓	✓	trojan
+V2Ray	✓	✓	v2ray
+类 TG 代理的 HTTP/Socks 链接	✓	×	仅支持 &url= 调用
+
+
+
 ## 注意事项
 
 **美国节点分组策略组可能存在US匹配问题**：一些机场节点可能命名为US/AUS/RUS，含US的节点会被全部分配到美国节点。这种情况下，请使用以下策略组：
@@ -30,10 +58,3 @@ custom_proxy_group=🇺🇲 美国节点`url-test`([^A-Z]美|波特兰|达拉斯
 custom_proxy_group=🇦🇺 澳洲节点`url-test`([^A-Z]AUS|澳大利亚|Sydney|Melbourne|Perth|Brisbane|Adelaide|Canberra|AU|Australia)`http://www.gstatic.com/generate_204`300,,50
 custom_proxy_group=🇷🇺 俄罗斯节点`url-test`([^A-Z]RUS|俄罗斯|Moscow|St.Petersburg|RU|Russia)`http://www.gstatic.com/generate_204`300,,50
 
-
-### 其他规则转换 clash Quantumul Surge Surfboard Trojan
-
-- **前端**：[sub-web](https://github.com/CareyWang/sub-web)
-- **后端**：[subconverter](https://github.com/tindy2013/subconverter/blob/master/README-cn.md)
-
-将上述内容直接复制粘贴到GitHub的README编辑器中，就可以生成带有跳转链接和支持类型的表格。如果有其他问题或需要进一步的修改，请随时告诉我。
