@@ -105,4 +105,3 @@ custom_proxy_group=🇷🇺 Russia Nodes`url-test`([^A-Z]RUS|俄罗斯|Moscow|St
 [![CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey)](https://creativecommons.org/licenses/by-sa/4.0/deed.en)
 
 This project is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
-```
