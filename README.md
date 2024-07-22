@@ -30,3 +30,10 @@ custom_proxy_group=🇺🇲 美国节点`url-test`([^A-Z]美|波特兰|达拉斯
 custom_proxy_group=🇦🇺 澳洲节点`url-test`([^A-Z]AUS|澳大利亚|Sydney|Melbourne|Perth|Brisbane|Adelaide|Canberra|AU|Australia)`http://www.gstatic.com/generate_204`300,,50
 custom_proxy_group=🇷🇺 俄罗斯节点`url-test`([^A-Z]RUS|俄罗斯|Moscow|St.Petersburg|RU|Russia)`http://www.gstatic.com/generate_204`300,,50
 
+
+### 其他规则转换 clash Quantumul Surge Surfboard Trojan
+
+- **前端**：[sub-web](https://github.com/CareyWang/sub-web)
+- **后端**：[subconverter](https://github.com/tindy2013/subconverter/blob/master/README-cn.md)
+
+将上述内容直接复制粘贴到GitHub的README编辑器中，就可以生成带有跳转链接和支持类型的表格。如果有其他问题或需要进一步的修改，请随时告诉我。
