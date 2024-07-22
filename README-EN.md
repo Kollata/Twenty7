@@ -94,7 +94,13 @@ By following these steps, you can easily convert subscription links into the req
 
 ## Notes
 
-**US Node Group Policy Issue**: Some nodes might be named US/AUS/RUS, and nodes containing "US" will be grouped under the US node group. In such cases, delete the original line `custom_proxy_group=🇺🇲 美国节点` and replace it with the following policy groups:
+**US Node Group Policy Issue**: Some nodes may be named US/AUS/RUS, and nodes containing "US" will be grouped under the US node group. In such cases, please use a text editor like Notepad++ to edit the following line for the US node group:
+
+```yaml
+custom_proxy_group=🇺🇲 US Nodes`url-test`(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)`http://www.gstatic.com/generate_204`300,,150
+```
+
+Replace it with the following content:
 
 ```yaml
 custom_proxy_group=🇺🇲 US Nodes`url-test`([^A-Z]美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|[^A-Z]US|United States)`http://www.gstatic.com/generate_204`300,,150
