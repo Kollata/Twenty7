@@ -1,8 +1,8 @@
-# Subscription Conversion Rules for Split Traffic and DNS Leak Prevention
+# Traffic Rules for Subscription Conversion and DNS Leak Prevention (Based on ACL4SSR)
 
-Split traffic rules for Clash
+Traffic rules for Clash
 
-This project provides split traffic rules that can be used with the following tools:
+The traffic rules provided in this project can be used with the following tools:
 
 - Clash
 - Clash for Windows
