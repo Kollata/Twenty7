@@ -3,6 +3,8 @@
 
 **Flow Rules for Clash**
 
+ [中文文档](https://github.com/Kollata/Twenty7/blob/main/README.md)
+
 The flow rules provided by this project can be used with the following tools:
 
 - Clash
