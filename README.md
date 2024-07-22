@@ -100,3 +100,7 @@ custom_proxy_group=🇺🇲 美国节点`url-test`([^A-Z]美|波特兰|达拉斯
 custom_proxy_group=🇦🇺 澳洲节点`url-test`([^A-Z]AUS|澳大利亚|Sydney|Melbourne|Perth|Brisbane|Adelaide|Canberra|AU|Australia)`http://www.gstatic.com/generate_204`300,,50
 custom_proxy_group=🇷🇺 俄罗斯节点`url-test`([^A-Z]RUS|俄罗斯|Moscow|St.Petersburg|RU|Russia)`http://www.gstatic.com/generate_204`300,,50
 
+```markdown
+## Custom Proxy Group Configuration
+
+The following configuration is used to handle nodes from different regions:
