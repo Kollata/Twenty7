@@ -95,7 +95,13 @@
 
 ## 注意事项
 
-**美国节点分组策略组可能存在US匹配问题**：一些机场节点可能命名为US/AUS/RUS，含US的节点会被全部分配到美国节点。这种情况下，请将原来的custom_proxy_group=🇺🇲 美国节点 那一行删掉替换使用以下策略组：
+**美国节点分组策略组可能存在US匹配问题**：一些机场节点可能命名为US/AUS/RUS，含US的节点会被全部分配到美国节点。
+这种情况下，请使用文本文档或者Notepad++编辑工具将这一行美国节点的策略组
+
+```yaml
+custom_proxy_group=🇺🇲 美国节点`url-test`(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)`http://www.gstatic.com/generate_204`300,,150
+```
+替换为以下内容
 
 ```yaml
 custom_proxy_group=🇺🇲 美国节点`url-test`([^A-Z]美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|[^A-Z]US|United States)`http://www.gstatic.com/generate_204`300,,150
