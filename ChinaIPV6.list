@@ -2,10 +2,7 @@
 # 来源：https://ispip.clang.cn/all_cn_ipv6.txt
 # 更新：2024-06-30 11:03:01
 # 数量：2018条
-# 开启 IPv6 支持
-ipv6: true
 
-# 规则部分
 IP-CIDR6,2001:250::/35,no-resolve
 IP-CIDR6,2001:250:2000::/35,no-resolve
 IP-CIDR6,2001:250:4000::/34,no-resolve
