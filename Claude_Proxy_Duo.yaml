@@ -1,5 +1,5 @@
 # ===== 极简版 v6（GEO 数据库，两个分组）2026-11-28 =====
-# Proxy_Config_Lite_Device.yaml
+# Proxy_Config_Lite_Multi_Device.yaml
 # 逻辑：内网和国内直连，其余全部走代理
 # OpenClash（fake-ip 模式）：部分设置会以插件界面为准
 # Clash Verge 等电脑端：TUN 在客户端界面里开启
