@@ -7,7 +7,7 @@
 proxy-providers:
   Airport:
     type: http
-    url: "https://twj9slcji9aulpfk.yun7.de/q/b669a821b2d8412d8eb618cc311a5278"
+    url: "请替换为你的订阅链接"
     path: ./proxy_providers/airport.yaml
     interval: 86400
     proxy: DIRECT
