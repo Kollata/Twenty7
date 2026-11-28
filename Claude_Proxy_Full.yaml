@@ -1,0 +1,321 @@
+# ===== 版本 v7（2026-11-28）=====
+# Claude_Proxy_Full.yaml
+# =====================================================================
+# mihomo 通用分流配置（fake-ip + TUN，白名单模式：未匹配流量走代理）
+# 规则来源：MetaCubeX/meta-rules-dat（主）+ Loyalsoldier/clash-rules（广告、直连软件）
+# 使用前只需修改一处：proxy-providers 里的订阅链接
+# 建议使用较新版本的 mihomo 内核
+# =====================================================================
+
+# ---------- 机场订阅 ----------
+proxy-providers:
+  provider1:                   # 给机场起的名字，不能重复，建议不要和策略组名称重复
+    type: http                 # provider类型，可选http(必须设置url) / file(必须设置本地文件路径) / inline(直接内嵌节点,在 payload 里写节点列表)
+    url: "https://twj9slcji9aulpfk.yun7.de/q/b669a821b2d8412d8eb618cc311a5278"
+    path: ./proxy_providers/provider1.yaml
+    interval: 86400            # 自动更新间隔，单位为秒，0为不自动更新
+    proxy: DIRECT              # 经过指定代理进行下载/更新
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 600            # 节点健康检查间隔，单位为秒，0为不检查
+      timeout: 5000            # 健康检查超时时间，单位毫秒，超过这个时间没有完成测试，就会被视为超时
+      expected-status: 204     # 指定健康检查期望返回的 HTTP 状态码，必须返回 HTTP 204，才认为节点通过检查
+      lazy: true               # 如果策略组没有被使用，就不主动进行周期性测速
+
+# 自建节点写在这里，include-all 的代理组会自动收录
+# 节点信息
+# proxies:
+#   - {name: "自建-香港", type: ss, server: example.com, port: 443, cipher: aes-256-gcm, password: "密码", udp: true}
+
+# ---------- 全局配置 ----------
+mixed-port: 7890
+allow-lan: true                # 需要给局域网其他设备用时改 true（路由器必开）
+bind-address: "*"              # 绑定 IP 地址，仅作用于 allow-lan 为 true，'*'表示所有地址
+log-level: info                # 日志等级 silent/error/warning/info/debug
+ipv6: false                    # 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
+unified-delay: true            # 开启统一延迟时，会计算 RTT，以消除连接握手等带来的不同类型节点的延迟差异
+tcp-concurrent: true           # 启用 TCP 并发连接，将会使用 dns 解析出的所有 IP 地址进行连接，使用第一个成功的连接
+keep-alive-idle: 300           # 官方文档 15,ai建议15~300,修改此项以减少移动设备耗电问题
+keep-alive-interval: 30        # 官方文档 15,ai建议15~30,修改此项以减少移动设备耗电问题
+find-process-mode: strict      # 控制是否让 Clash 去匹配进程,路由器建议改 off（进程规则随之失效）
+
+profile:
+  store-selected: true         # 储存 API 对策略组的选择，以供下次启动时使用
+  store-fake-ip: true          # 持久化 fake-ip，储存 fakeip 映射表，域名再次发生连接时，使用原有映射地址
+
+external-controller: 127.0.0.1:9090
+secret: ""                     # 若改成 0.0.0.0 监听，必须设置密钥
+external-ui: ui
+external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+
+# ---------- 域名嗅探 ----------
+sniffer:
+  enable: true
+  force-dns-mapping: true      # 对 redir-host 类型识别的流量进行强制嗅探
+  parse-pure-ip: true          # 对所有未获取到域名的流量进行强制嗅探
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:                 # 跳过嗅探的域名列表，使用域名通配
+    - "Mijia Cloud"
+    - "+.push.apple.com"
+
+# ---------- 入站 TUN ----------
+# Clash Verge Rev、Clash Party 等客户端通常用界面开关接管此段
+# tun:
+#   enable: true
+#   stack: mips                  # tun 模式堆栈，如无使用问题，建议使用 mips 栈，默认 mips（使用 mihomo 自研的 IP 协议栈），可用值： system/gvisor/mixed/mips，参考 https://wiki.metacubex.one/config/inbound/tun/
+#   auto-route: true             # 自动设置全局路由，可以自动将全局流量路由进入 tun 网卡
+#   # auto-redirect: true        # 仅支持 Linux，自动配置 iptables/nftables 以重定向 TCP 连接，需要auto-route已启用
+#   auto-detect-interface: true  # 自动选择流量出口接口，多出口网卡同时连接的设备建议手动指定出口网卡
+#   strict-route: true           # 严格路由，主要用于防止部分流量绕过 TUN，开启后，本机连接局域网设备、Docker/虚拟网卡等可能受影响，按需把相关网段/接口排除掉，或者改 false 排查
+#   dns-hijack:                  # DNS劫持到53端口
+#     - any:53
+#     - tcp://any:53
+#   route-exclude-address:       # 排除了指定私有网段，不让这些目标地址被 TUN 接管
+#     - 192.168.0.0/16
+#     - 10.0.0.0/8
+#     - 172.16.0.0/12
+
+# ---------- DNS ----------
+dns:
+  enable: true
+  cache-algorithm: arc
+  ipv6: false
+  use-hosts: true
+  use-system-hosts: true
+  respect-rules: true          # DNS 连接按路由规则走，须配 proxy-server-nameserver
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+    - "rule-set:private_domain"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "localhost.ptlogin2.qq.com"
+    - "+.stun.*.*"
+    - "+.stun.*.*.*"
+    - "+.market.xiaomi.com"
+    - "+.srv.nintendo.net"        # 以下为游戏机联机
+    - "+.stun.playstation.net"
+    - "+.xboxlive.com"
+  # 仅用于解析下面 DoH 服务器自身的域名，必须是 IP
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  # 仅用于解析节点域名
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://120.53.53.53/dns-query
+  # 默认解析：境外 DoH（经代理发出）
+  nameserver:
+    - "https://dns.cloudflare.com/dns-query#RULES"
+    - "https://dns.google/dns-query#RULES"
+  nameserver-policy:
+    "rule-set:private_domain,cn_domain":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+  # 直连出口的域名解析：国内 DoH，同时遵循上面的 policy（内网域名走国内 DoH）
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: true
+
+# ---------- 锚点（mihomo 会忽略这个顶层键） ----------
+x-anchors:
+  # 节点名过滤：垃圾信息节点；高倍率节点（5 倍及以上，仅从自动测速中排除）
+  junk: &junk '(?i)剩余|流量|到期|重置|套餐|订阅|官网|网址|发布页|防失联|客服|不可直连'
+  junk_auto: &junk_auto '(?i)剩余|流量|到期|重置|套餐|订阅|官网|网址|发布页|防失联|客服|不可直连`(?i)(?<![\d.])([5-9]|[1-9]\d+)(\.\d+)?\s*[x×倍]'
+  hk: &hk '(?i)港|🇭🇰|(?<![a-z])HK(?![a-z])|Hong ?Kong'
+  tw: &tw '(?i)台湾|台灣|🇹🇼|(?<![a-z])TW(?![a-z])|Taiwan'
+  jp: &jp '(?i)日本|东京|大阪|🇯🇵|(?<![a-z])JP(?![a-z])|Japan'
+  sg: &sg '(?i)新加坡|狮城|獅城|🇸🇬|(?<![a-z])SG(?![a-z])|Singapore'
+  us: &us '(?i)美国|美國|洛杉矶|圣何塞|硅谷|西雅图|🇺🇸|(?<![a-z])USA?(?![a-z])|United ?States|America'
+  kr: &kr '(?i)韩国|韓國|首尔|🇰🇷|(?<![a-z])KR(?![a-z])|Korea'
+  other_ex: &other_ex '(?i)剩余|流量|到期|重置|套餐|订阅|官网|网址|发布页|防失联|客服|不可直连`(?i)港|🇭🇰|(?<![a-z])HK(?![a-z])|Hong ?Kong`(?i)台湾|台灣|🇹🇼|(?<![a-z])TW(?![a-z])|Taiwan`(?i)日本|东京|大阪|🇯🇵|(?<![a-z])JP(?![a-z])|Japan`(?i)新加坡|狮城|獅城|🇸🇬|(?<![a-z])SG(?![a-z])|Singapore`(?i)美国|美國|洛杉矶|圣何塞|硅谷|西雅图|🇺🇸|(?<![a-z])USA?(?![a-z])|United ?States|America`(?i)韩国|韓國|首尔|🇰🇷|(?<![a-z])KR(?![a-z])|Korea'
+
+  # 代理组模板
+  auto: &auto {type: url-test, include-all: true, url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 100, lazy: true, expected-status: 204, empty-fallback: REJECT, exclude-filter: *junk_auto}
+  region_auto: &region_auto {type: url-test, include-all: true, url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 100, lazy: true, expected-status: 204, empty-fallback: REJECT, exclude-filter: *junk_auto, hidden: true}
+  region: &region {type: select, include-all: true, empty-fallback: REJECT, exclude-filter: *junk}
+  fallback: &fallback {type: fallback, include-all: true, url: "https://www.gstatic.com/generate_204", interval: 300, lazy: true, expected-status: 204, empty-fallback: REJECT, exclude-filter: *junk_auto}
+  balance: &balance {type: load-balance, strategy: consistent-hashing, include-all: true, url: "https://www.gstatic.com/generate_204", interval: 300, lazy: true, expected-status: 204, empty-fallback: REJECT, exclude-filter: *junk_auto}
+
+  # 候选列表
+  main: &main [♻️ 自动选择, 🔯 故障转移, 🔮 负载均衡, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🌍 其他节点, 🖐 手动选择, DIRECT]
+  common: &common [🚀 默认代理, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🌍 其他节点, 🖐 手动选择]
+  # 默认直连的分组
+  direct_first: &direct_first [DIRECT, 🚀 默认代理, 🇺🇸 美国节点, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🌍 其他节点, 🖐 手动选择]
+
+# ---------- 代理组 ----------
+proxy-groups:
+  # 总出口
+  - {name: 🚀 默认代理, type: select, proxies: *main}
+
+  # 全局节点组
+  - {name: 🖐 手动选择, <<: *region}
+  - {name: ♻️ 自动选择, <<: *auto}
+  - {name: 🔯 故障转移, <<: *fallback}
+  - {name: 🔮 负载均衡, <<: *balance}
+
+  # 按服务分流
+  - {name: 🤖 AI服务, type: select, proxies: *common}                  # AI 和 TikTok这两类服务在香港通常用不了，选节点时避开。
+  - {name: 🎵 TikTok, type: select, proxies: *common}                  # AI 和 TikTok这两类服务在香港通常用不了，选节点时避开。
+  - {name: 🎥 流媒体, type: select, proxies: *common}
+  - {name: 📹 YouTube, type: select, proxies: *common}
+  - {name: 📺 巴哈姆特, type: select, proxies: [🇹🇼 台湾节点,🚀 默认代理, 🖐 手动选择]}
+  - {name: 📺 哔哩哔哩, type: select, proxies: [DIRECT, 🇹🇼 台湾节点, 🇭🇰 香港节点]}
+  - {name: 🍀 Google, type: select, proxies: *common}
+  - {name: 🐙 GitHub, type: select, proxies: *common}
+  - {name: 📲 Telegram, type: select, proxies: *common}
+  - {name: 💶 PayPal, type: select, proxies: *direct_first}
+  - {name: 📢 谷歌FCM, type: select, proxies: *direct_first}
+  - {name: Ⓜ️ 微软Bing, type: select, proxies: *direct_first}
+  - {name: Ⓜ️ 微软云盘, type: select, proxies: *direct_first}
+  - {name: 🪟 微软服务, type: select, proxies: *direct_first}
+  - {name: 🍎 苹果服务, type: select, proxies: *direct_first}
+  - {name: 🎮 游戏平台, type: select, proxies: *direct_first}
+  # 候选之外，再列出名称含解锁关键字的节点
+  - {name: 🎶 网易音乐, type: select, proxies: [DIRECT, 🚀 默认代理, ♻️ 自动选择], include-all: true, filter: '(?i)网易|音乐|解锁|Music|NetEase', exclude-filter: *junk}
+  - {name: 🛑 广告拦截, type: select, proxies: [REJECT, DIRECT]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 默认代理, DIRECT, 🖐 手动选择]}
+
+  # 地区组（手动选单个节点，默认用该地区自动测速）
+  - {name: 🇭🇰 香港节点, <<: *region, proxies: [♻️ 香港自动], filter: *hk}
+  - {name: 🇹🇼 台湾节点, <<: *region, proxies: [♻️ 台湾自动], filter: *tw}
+  - {name: 🇯🇵 日本节点, <<: *region, proxies: [♻️ 日本自动], filter: *jp}
+  - {name: 🇸🇬 狮城节点, <<: *region, proxies: [♻️ 狮城自动], filter: *sg}
+  - {name: 🇺🇸 美国节点, <<: *region, proxies: [♻️ 美国自动], filter: *us}
+  - {name: 🇰🇷 韩国节点, <<: *region, proxies: [♻️ 韩国自动], filter: *kr}
+  - {name: 🌍 其他节点, <<: *region, proxies: [♻️ 其他自动], exclude-filter: *other_ex}
+
+  - {name: ♻️ 香港自动, <<: *region_auto, filter: *hk}
+  - {name: ♻️ 台湾自动, <<: *region_auto, filter: *tw}
+  - {name: ♻️ 日本自动, <<: *region_auto, filter: *jp}
+  - {name: ♻️ 狮城自动, <<: *region_auto, filter: *sg}
+  - {name: ♻️ 美国自动, <<: *region_auto, filter: *us}
+  - {name: ♻️ 韩国自动, <<: *region_auto, filter: *kr}
+  # 其他地区自动测速：排除上述地区；不排除高倍率节点
+  - {name: ♻️ 其他自动, <<: *region_auto, exclude-filter: *other_ex}
+
+# ---------- 规则集 ----------
+rule-anchors:
+  acl: &acl {type: http, behavior: classical, format: yaml, interval: 86400, proxy: DIRECT}
+  domain: &domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
+  ip: &ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
+  loyal: &loyal {type: http, format: yaml, interval: 86400, proxy: DIRECT}
+
+rule-providers:
+  # MetaCubeX 域名规则
+  private_domain: {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/private.mrs"}
+  ai:             {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-ai-!cn.mrs"}
+  tiktok:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs"}
+  netflix:        {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs"}
+  disney:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/disney.mrs"}
+  hbo:            {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/hbo.mrs"}
+  youtube:        {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs"}
+  google:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs"}
+  github:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/github.mrs"}
+  telegram:       {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs"}
+  paypal:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/paypal.mrs"}
+  steam_cn:       {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/steam@cn.mrs"}
+  games_cn:       {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-games@cn.mrs"}
+  not_cn:         {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"}
+  cn_domain:      {<<: *domain, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"}
+  # MetaCubeX IP 规则
+  private_ip:     {<<: *ip, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/private.mrs"}
+  telegram_ip:    {<<: *ip, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"}
+  google_ip:      {<<: *ip, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/google.mrs"}
+  netflix_ip:     {<<: *ip, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/netflix.mrs"}
+  cn_ip:          {<<: *ip, url: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"}
+  # ACL4SSR（yaml，同时含域名和 IP）
+  fcm:           {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GoogleFCM.yaml"}
+  bing:          {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Bing.yaml"}
+  onedrive:      {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/OneDrive.yaml"}
+  microsoft:     {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Microsoft.yaml"}
+  apple:         {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Apple.yaml"}
+  netease_music: {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/NetEaseMusic.yaml"}
+  epic:          {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Epic.yaml"}
+  origin:        {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Origin.yaml"}
+  sony:          {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Sony.yaml"}
+  steam:         {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Steam.yaml"}
+  nintendo:      {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Nintendo.yaml"}
+  bahamut:       {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Bahamut.yaml"}
+  bilibili_hmt:  {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/BilibiliHMT.yaml"}
+  bilibili:      {<<: *acl, url: "https://testingcf.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Bilibili.yaml"}
+  # Loyalsoldier（文件后缀是 .txt，内容是 yaml 格式）
+  reject:         {<<: *loyal, behavior: domain, url: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"}
+  applications:   {<<: *loyal, behavior: classical, url: "https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt"}
+
+# ---------- 路由规则（自上而下，先匹配先生效） ----------
+rules:
+  # 1. 局域网
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,private_ip,DIRECT,no-resolve
+  # 自定义规则写在这里（优先级高于下面的规则集），例如：
+  # - DOMAIN-SUFFIX,example.com,DIRECT
+  # - DOMAIN-SUFFIX,huggingface.co,🤖 AI服务
+  # 需要让 DNS 泄露检测域名走代理时，取消下面两行注释（只影响 https://ip.skk.moe/dns-exit-lookup 检测结果）
+  - DOMAIN-SUFFIX,nstool.netease.com,🚀 默认代理
+  - DOMAIN-SUFFIX,dns-detect.alicdn.com,🚀 默认代理
+  # 2. 需要直连的软件（下载工具等）
+  - RULE-SET,applications,DIRECT
+  # 3. 广告
+  - RULE-SET,reject,🛑 广告拦截
+  # 4. 服务分流（范围小的在前）
+  - RULE-SET,ai,🤖 AI服务
+  - RULE-SET,youtube,📹 YouTube
+  - RULE-SET,fcm,📢 谷歌FCM,no-resolve
+  - RULE-SET,google,🍀 Google
+  - RULE-SET,github,🐙 GitHub
+  - RULE-SET,telegram,📲 Telegram
+  - RULE-SET,tiktok,🎵 TikTok
+  - RULE-SET,bahamut,📺 巴哈姆特,no-resolve
+  - RULE-SET,bilibili_hmt,📺 哔哩哔哩,no-resolve
+  - RULE-SET,bilibili,📺 哔哩哔哩,no-resolve
+  - RULE-SET,netflix,🎥 流媒体
+  - RULE-SET,disney,🎥 流媒体
+  - RULE-SET,hbo,🎥 流媒体
+  - RULE-SET,paypal,💶 PayPal
+  - RULE-SET,bing,Ⓜ️ 微软Bing,no-resolve
+  - RULE-SET,onedrive,Ⓜ️ 微软云盘,no-resolve
+  - RULE-SET,microsoft,🪟 微软服务,no-resolve
+  - RULE-SET,apple,🍎 苹果服务,no-resolve
+  - RULE-SET,steam_cn,DIRECT
+  - RULE-SET,games_cn,DIRECT
+  - RULE-SET,epic,🎮 游戏平台,no-resolve
+  - RULE-SET,origin,🎮 游戏平台,no-resolve
+  - RULE-SET,sony,🎮 游戏平台,no-resolve
+  - RULE-SET,steam,🎮 游戏平台,no-resolve
+  - RULE-SET,nintendo,🎮 游戏平台,no-resolve
+  - RULE-SET,netease_music,🎶 网易音乐,no-resolve
+  # 5. 境外 / 国内域名
+  - RULE-SET,not_cn,🚀 默认代理
+  - RULE-SET,cn_domain,DIRECT
+  # 6. 纯 IP 连接（no-resolve：不为匹配它们而解析域名）
+  - RULE-SET,telegram_ip,📲 Telegram,no-resolve
+  - RULE-SET,netflix_ip,🎥 流媒体,no-resolve
+  - RULE-SET,google_ip,🍀 Google,no-resolve
+  # 7. 兜底：no-resolve 表示匹配规则时不为域名做本地解析；
+  #    未被域名规则收录的国内网站会走「漏网之鱼」
+  - RULE-SET,cn_ip,DIRECT,no-resolve
+  - MATCH,🐟 漏网之鱼
+
+# 本配置只用 RULE-SET，不需要 GEO 数据库。
+# 若自行添加 GEOSITE / GEOIP 规则，可取消注释（geodata-mode 为 true 时 geoip 用 .dat）：
+# geodata-mode: true
+# geox-url:
+#   geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
+#   geosite: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+#   mmdb: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb"
+#   asn: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb"

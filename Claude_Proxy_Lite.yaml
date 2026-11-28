@@ -1,0 +1,100 @@
+# ===== 极简版 v2（GEO 数据库，两个分组）2026-11-28 =====
+# Claude_Proxy_Lite.yaml
+# 逻辑：内网和国内直连，其余全部走代理
+# OpenClash（fake-ip 模式）：部分设置会以插件界面为准
+# Clash Verge 等电脑端：TUN 在客户端界面里开启
+
+proxy-providers:
+  Airport:
+    type: http
+    url: "https://twj9slcji9aulpfk.yun7.de/q/b669a821b2d8412d8eb618cc311a5278"
+    path: ./proxy_providers/airport.yaml
+    interval: 86400
+    proxy: DIRECT
+    health-check: {enable: true, url: "https://www.gstatic.com/generate_204", interval: 300, lazy: true}
+
+mixed-port: 7890
+allow-lan: true
+bind-address: "*"
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: info
+find-process-mode: off
+keep-alive-idle: 600
+keep-alive-interval: 15
+profile: {store-selected: true, store-fake-ip: true}
+
+external-controller: 127.0.0.1:9090
+secret: ""
+external-ui: ui
+external-ui-url: "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP: {ports: [80, 8080-8880], override-destination: true}
+    TLS: {ports: [443, 8443]}
+    QUIC: {ports: [443, 8443]}
+  skip-domain: ["Mijia Cloud", "+.push.apple.com"]
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  ipv6: false
+  respect-rules: true
+  use-hosts: true
+  use-system-hosts: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*"
+    - "geosite:private"
+    - "+.lan"
+    - "+.local"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.market.xiaomi.com"
+  default-nameserver: [223.5.5.5, 119.29.29.29]
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://120.53.53.53/dns-query
+  nameserver:
+    - "https://dns.cloudflare.com/dns-query#RULES"
+    - "https://dns.google/dns-query#RULES"
+  nameserver-policy:
+    "geosite:private,cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: true
+
+proxy-groups:
+  - {name: 🚀 代理, type: select, proxies: [♻️ 自动选择, DIRECT], include-all: true, exclude-filter: '(?i)剩余|流量|到期|重置|套餐|订阅|官网|网址|发布页|防失联|客服|不可直连'}
+  - {name: ♻️ 自动选择, type: url-test, include-all: true, url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 50, lazy: true, empty-fallback: REJECT, exclude-filter: '(?i)剩余|流量|到期|重置|套餐|订阅|官网|网址|发布页|防失联|客服|不可直连`(?i)(?<![\d.])([5-9]|[1-9]\d+)(\.\d+)?\s*[x×倍]'}
+
+rules:
+  # 需要让 DNS 泄露检测域名走代理时，取消下面两行注释（只影响 https://ip.skk.moe/dns-exit-lookup 检测结果）
+  - DOMAIN-SUFFIX,nstool.netease.com,🚀 代理
+  - DOMAIN-SUFFIX,dns-detect.alicdn.com,🚀 代理
+  - GEOSITE,private,DIRECT
+  - GEOIP,LAN,DIRECT,no-resolve
+  # 需要拦截广告时取消下一行注释
+  # - GEOSITE,category-ads-all,REJECT
+  # 先匹配游戏国内下载域名和境外域名，避免被 cn 库误收（如 browserleaks.com）
+  - GEOSITE,category-games@cn,DIRECT
+  - GEOSITE,geolocation-!cn,🚀 代理
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve
+  - MATCH,🚀 代理
+
+# GEO 数据库（geodata-mode: true 时，geoip 必须用 .dat）
+geodata-mode: true
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
