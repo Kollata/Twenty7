@@ -11,7 +11,7 @@
 proxy-providers:
   provider1:                   # 给机场起的名字，不能重复，建议不要和策略组名称重复
     type: http                 # provider类型，可选http(必须设置url) / file(必须设置本地文件路径) / inline(直接内嵌节点,在 payload 里写节点列表)
-    url: "https://twj9slcji9aulpfk.yun7.de/q/b669a821b2d8412d8eb618cc311a5278"
+    url: "请替换为你的订阅链接"
     path: ./proxy_providers/provider1.yaml
     interval: 86400            # 自动更新间隔，单位为秒，0为不自动更新
     proxy: DIRECT              # 经过指定代理进行下载/更新
